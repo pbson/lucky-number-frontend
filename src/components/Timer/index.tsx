@@ -35,7 +35,7 @@ const Countdown = (props) => {
     const mapNumber = (number, in_min, in_max, out_min, out_max) => {
         return (number - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
-    const { timeTillDate, timeFormat, setMessage } = props;
+    const { timeTillDate, timeFormat, setIsCountdownFinish } = props;
     const then = moment(timeTillDate, timeFormat);
 
     useEffect(() => {
@@ -44,7 +44,7 @@ const Countdown = (props) => {
             if (then.isBefore(now)) {
                 setMinutes('00');
                 setSeconds('00');
-                setMessage(true);
+                setIsCountdownFinish(true);
                 clearInterval(interval);
                 return;
             }

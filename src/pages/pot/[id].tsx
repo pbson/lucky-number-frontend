@@ -26,7 +26,7 @@ const Pot: NextPage = () => {
 
     const [isWinner, setIsWinner] = useState(true);
 
-    const [selectedMessage, setMessage] = useState(false);
+    const [isCountdownFinish, setIsCountdownFinish] = useState(false);
 
     const segments = [
         '1',
@@ -70,8 +70,8 @@ const Pot: NextPage = () => {
                     paddingTop: '50px'
                 }}>
                     <Countdown
-                        setMessage={setMessage}
-                        timeTillDate="05 20 2022, 16:44:00 am"
+                        setIsCountdownFinish={setIsCountdownFinish}
+                        timeTillDate="05 23 2022, 14:30:00 am"
                         timeFormat="MM DD YYYY, h:mm a"
                     />
                 </Box>
@@ -88,13 +88,14 @@ const Pot: NextPage = () => {
                         onFinished={(winner) => onFinished(winner)}
                         contrastColor={theme.palette.grey[50]}
                         primaryColor={theme.palette.primary.main}
-                        buttonText=''
+                        buttonText='Result'
                         isOnlyOnce={false}
                         size={290}
                         upDuration={300}
                         downDuration={3000}
                         fontFamily='Space Grotesk'
-                        selectedMessage={selectedMessage}
+                        isCountdownFinish={isCountdownFinish}
+                        setOpen={setOpen}
                     />
                     <Modal
                         open={open}
