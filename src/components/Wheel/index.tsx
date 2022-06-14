@@ -15,7 +15,7 @@ const WheelComponent = ({
     fontFamily = "proxima-nova",
     width = 100,
     height = 100,
-    isCountdownFinish,
+    isWinner,
     setOpen
 }) => {
     let currentSegment = "";
@@ -67,14 +67,14 @@ const WheelComponent = ({
         }
     };
     useEffect(() => {
-        if (isCountdownFinish) {
+        if (isWinner) {
             let canvas = document.getElementById("canvas");
             const event = document.createEvent('Event');
             event.initEvent('runWheel', true, true);
             canvas.dispatchEvent(event);
             canvas.addEventListener("click", setOpen, false);
         }
-    }, [isCountdownFinish]);
+    }, [isWinner]);
     const onTimerTick = () => {
         frames++;
         draw();

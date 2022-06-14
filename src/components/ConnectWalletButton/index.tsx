@@ -1,7 +1,5 @@
 import {
     useMetamask,
-    useWalletConnect,
-    useCoinbaseWallet,
     useNetwork,
     useAddress,
     useDisconnect,

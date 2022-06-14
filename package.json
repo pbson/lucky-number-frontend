@@ -14,8 +14,11 @@
     "@emotion/server": "^11.4.0",
     "@emotion/styled": "^11.8.1",
     "@fontsource/roboto": "^4.5.7",
+    "@metamask/providers": "^8.1.1",
     "@mui/icons-material": "^5.8.0",
+    "@mui/lab": "^5.0.0-alpha.85",
     "@mui/material": "^5.8.0",
+    "@reduxjs/toolkit": "^1.8.2",
     "@thirdweb-dev/react": "^2.2.7",
     "@thirdweb-dev/sdk": "^2.2.10",
     "ethers": "^5.6.6",
@@ -25,7 +28,10 @@
     "react-confetti": "^6.0.1",
     "react-countup": "^6.2.0",
     "react-dom": "18.1.0",
+    "react-redux": "^8.0.2",
     "react-wheel-of-prizes": "^1.0.9",
+    "redux": "^4.2.0",
+    "redux-thunk": "^2.4.1",
     "web3": "^1.7.0"
   },
   "devDependencies": {

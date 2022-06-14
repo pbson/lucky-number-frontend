@@ -1,12 +1,20 @@
-import * as React from 'react';
-import type { NextPage } from 'next';
+import React, { useState, useEffect } from 'react';
 import Layout from "../components/Layout";
 import { Container, Box, Typography } from '@mui/material';
 import { PrimaryButton } from '../components/PrimaryButton/PrimaryButton.styled';
 import Image from 'next/image'
 import styled from '@emotion/styled'
 import CountUp from 'react-countup';
-import Link from '../components/Link/index';
+import Web3 from "web3";
+import {
+  ABI,
+  CONTRACT_ADDRESS,
+} from "../utils/config";
+import {
+  useAddress,
+} from "@thirdweb-dev/react";
+import { useRouter } from 'next/router';
+import { NextPage } from 'next';
 
 const HomepageTitle = styled(Typography)`
     font-family: "Space Grotesk"
@@ -35,6 +43,51 @@ const PlayerCountText = styled(Typography)`
 `;
 
 const Home: NextPage = () => {
+  const [contract, setContract] = useState(null);
+  const [web3, setWeb3] = useState(null);
+  const userAddress = useAddress();
+  const router = useRouter();
+  const [joinRoomLoading, setJoinRoomLoading] = useState(false);
+
+  useEffect(() => {
+    const ethereum = window.ethereum;
+    let w3 = new Web3(ethereum);
+    setWeb3(w3);
+    let contract = new w3.eth.Contract(ABI, CONTRACT_ADDRESS)
+    setContract(contract)
+  }, [])
+
+  async function joinGame() {
+    console.log(contract);
+    setJoinRoomLoading(true);
+    const roomId = await contract.methods.getLastRoomOfPlayer().call({from: userAddress});
+    console.log(roomId);
+    if (roomId != 0) {
+      router.push(`/pot/${roomId}`);
+    } else {
+      await contract.methods
+        .joinGame()
+        .send({ from: userAddress })
+        .on('transactionHash', (txID) => {
+          web3.eth.getTransactionReceipt(txID, function (e, data) {
+            console.log(e, data)
+          });
+        })
+        .on('receipt', async (receipt) => {
+          if (receipt.status) {
+            const roomId = await contract.methods
+              .roomId()
+              .call();
+            router.push(`/pot/${roomId}`);
+          } else {
+            setJoinRoomLoading(false);
+          }
+        })
+        .on('error', (error) => {
+          setJoinRoomLoading(false);
+        })
+    }
+  }
   return (
     <Layout>
       <Container maxWidth="xl">
@@ -48,20 +101,21 @@ const Home: NextPage = () => {
             flexDirection: 'column',
             width: '50%'
           }}>
-            <HomepageTitle variant="h3" >
+            <HomepageTitle variant="h3" paddingBottom={10} >
               Win up to <br />
-              <PercentageNumber start={0} end={500} duration={1.5} />
+              <PercentageNumber start={0} end={500} duration={1} />
               <br />
               per turn with Lucky Number
             </HomepageTitle>
-            <PlayerCountText variant="body1" >
+            {/* <PlayerCountText variant="body1" >
               Current number of players: 4/5
-            </PlayerCountText>
-            <Link href='/pot/1'>
-              <PrimaryButton>
-                Join Now
-              </PrimaryButton>
-            </Link>
+            </PlayerCountText> */}
+            <PrimaryButton
+              loading={joinRoomLoading}
+              onClick={() => joinGame()}
+            >
+              Join Now
+            </PrimaryButton>
           </Box>
           <Box sx={{
             display: 'flex',

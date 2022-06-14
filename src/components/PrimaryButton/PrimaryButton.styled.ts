@@ -1,7 +1,8 @@
-import { Button } from '@mui/material';
+// import { LoadingButton } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import styled from '@emotion/styled'
 
-export const PrimaryButton = styled(Button)<any>`
+export const PrimaryButton = styled(LoadingButton)<any>`
     padding: 20px;
     font-size: 14px;
     line-height: 20px;

@@ -1,40 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Box, Typography, Modal, useTheme } from '@mui/material';
+import { Container, Box, Typography, Modal, useTheme, Icon } from '@mui/material';
 import { useRouter } from 'next/router'
 import type { NextPage } from 'next';
 import Confetti from 'react-confetti'
-
 import Layout from "../../components/Layout";
-import Countdown from '../../components/Timer';
 import WheelComponent from '../../components/Wheel';
 import { PrimaryButton } from '../../components/PrimaryButton/PrimaryButton.styled';
-
 import { useWindowSize } from '../../hooks/useWindowSize';
-
 import { ModalContainer } from './pot.styled';
 import Image from 'next/image';
+import Web3 from "web3";
+import {
+    ABI,
+    CONTRACT_ADDRESS,
+} from "../../utils/config";
+import {
+    useAddress,
+} from "@thirdweb-dev/react";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 const Pot: NextPage = () => {
+    const [contract, setContract] = useState<any>();
+    const router = useRouter();
     const theme = useTheme();
     const size = useWindowSize();
-
     const [open, setOpen] = useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => setOpen(false);
-
     const [confetti, setConfetti] = useState(false);
+    const [winner, setWinner] = useState(false);
+    const [isWinner, setIsWinner] = useState(null);
+    const [segments, setSegments] = useState(null);
+    const [isClaimed, setIsClaimed] = useState(null);
+    const [roomId, setRoomId] = useState(null);
+    const [claimRewardLoading, setClaimRewardLoading] = useState(false);
 
-    const [isWinner, setIsWinner] = useState(true);
-
-    const [isCountdownFinish, setIsCountdownFinish] = useState(false);
-
-    const segments = [
-        '1',
-        '2',
-        '3',
-        '4',
-        '5',
-    ]
     const segColors = [
         '#EE4040',
         '#F0CF50',
@@ -42,16 +42,65 @@ const Pot: NextPage = () => {
         '#3DA5E0',
         '#34A24F'
     ]
+
+    const userAddress = useAddress();
+
+    useEffect(() => {
+        async function fetchData() {
+            const { id } = router.query
+            setRoomId(id);
+            const ethereum = window.ethereum;
+            let w3 = new Web3(ethereum);
+            let contract = new w3.eth.Contract(ABI, CONTRACT_ADDRESS)
+            setContract(contract)
+            const result = await contract.methods
+                .viewRoom(id)
+                .call()
+            setSegments(result.addressPlayers);
+            console.log(result);
+            if (result.winner != '0x0000000000000000000000000000000000000000') {
+                setWinner(result.winner);
+                result.winner == userAddress ? setIsWinner(true) : setIsWinner(false)
+                setIsClaimed(result.isClaimed);
+            }
+        }
+        if (!router.isReady) return;
+        fetchData();
+    }, [router.isReady, userAddress]);
+
     const onFinished = (winner) => {
-        setTimeout(() => {
-            handleOpen();
+        handleOpen();
+        if (winner == userAddress) {
             setConfetti(true);
-        }, 500);
+        }
     }
+
+    async function claimReward() {
+        setClaimRewardLoading(true);
+        await contract.methods
+            .claimReward(roomId)
+            .send({ from: userAddress })
+            .on('receipt', (receipt) => {
+                console.log(receipt);
+                if (receipt.status) {
+                    setIsClaimed(false);
+                    setClaimRewardLoading(false);
+                } else {
+                    setIsClaimed(true);
+                    setClaimRewardLoading(false);
+                }
+                console.log(receipt);
+            })
+            .on('error', (error) => {
+                setIsClaimed(true);
+                setClaimRewardLoading(false);
+            })
+    }
+
     return (
         <Layout>
             <Container maxWidth="xl">
-                {(isWinner == true) &&
+                {(winner) &&
                     <div className="div">
                         <Confetti
                             height={size.height >= 768 ? size.height : 768}
@@ -69,11 +118,6 @@ const Pot: NextPage = () => {
                     justifyContent: 'center',
                     paddingTop: '50px'
                 }}>
-                    <Countdown
-                        setIsCountdownFinish={setIsCountdownFinish}
-                        timeTillDate="05 23 2022, 14:30:00 am"
-                        timeFormat="MM DD YYYY, h:mm a"
-                    />
                 </Box>
                 <Box sx={{
                     display: 'flex',
@@ -81,29 +125,31 @@ const Pot: NextPage = () => {
                     justifyContent: 'center',
                     paddingTop: '50px'
                 }}>
-                    <WheelComponent
-                        segments={segments}
-                        segColors={segColors}
-                        winningSegment='1'
-                        onFinished={(winner) => onFinished(winner)}
-                        contrastColor={theme.palette.grey[50]}
-                        primaryColor={theme.palette.primary.main}
-                        buttonText='Result'
-                        isOnlyOnce={false}
-                        size={290}
-                        upDuration={300}
-                        downDuration={3000}
-                        fontFamily='Space Grotesk'
-                        isCountdownFinish={isCountdownFinish}
-                        setOpen={setOpen}
-                    />
+                    {(segments != null) && userAddress && segments &&
+                        <WheelComponent
+                            segments={segments}
+                            segColors={segColors}
+                            winningSegment={winner}
+                            onFinished={(winner) => onFinished(winner)}
+                            contrastColor={theme.palette.grey[50]}
+                            primaryColor={theme.palette.primary.main}
+                            buttonText='Result'
+                            isOnlyOnce={false}
+                            size={290}
+                            upDuration={100}
+                            downDuration={1000}
+                            fontFamily='Space Grotesk'
+                            isWinner={winner}
+                            setOpen={setOpen}
+                        />
+                    }
                     <Modal
                         open={open}
                         onClose={handleClose}
                         aria-labelledby="modal-modal-title"
                         aria-describedby="modal-modal-description"
                     >
-                        {isWinner ?
+                        {isWinner && userAddress ?
                             <ModalContainer>
                                 <Image
                                     src="/images/confetti.png"
@@ -113,12 +159,25 @@ const Pot: NextPage = () => {
                                 <Typography id="modal-modal-title" variant="h3" component="h1" sx={{ mt: 4, fontWeight: 600 }}>
                                     Congratulation
                                 </Typography>
+                                {isClaimed ? 
                                 <Typography id="modal-modal-description" variant="h6" sx={{ mt: 2, mb: 4 }}>
                                     Congratulation on winning the pot. Click the button below to claim your reward.
+                                </Typography> 
+                                : <Typography id="modal-modal-description" variant="h6" sx={{ mt: 2, mb: 4 }}>
+                                    Congratulation on winning the pot. You have successfully claimed your reward.
                                 </Typography>
-                                <PrimaryButton>
-                                    Claim !
-                                </PrimaryButton>
+                                }
+
+                                {isClaimed ?
+                                    <PrimaryButton
+                                        onClick={claimReward}
+                                        loading={claimRewardLoading}
+                                    >
+                                        Claim !
+                                    </PrimaryButton>
+                                    :
+                                    <CheckCircleIcon color='success' fontSize="large" />
+                                }
                             </ModalContainer>
                             :
                             <ModalContainer>
@@ -138,7 +197,7 @@ const Pot: NextPage = () => {
                     </Modal>
                 </Box>
             </Container>
-        </Layout>
+        </Layout >
     );
 };
 

@@ -5,6 +5,7 @@ import createEmotionCache from '../utils/createEmotionCache';
 import { theme } from '../theme/index';
 import '../../styles/globals.css';
 import { ThirdwebProvider } from "@thirdweb-dev/react";
+import { Provider } from 'react-redux'
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -15,10 +16,10 @@ const MyApp = (props: any) => {
   return (
     <CacheProvider value={emotionCache}>
       <ThirdwebProvider desiredChainId={desiredChainId}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Component {...pageProps} />
-        </ThemeProvider>
+          <ThemeProvider theme={theme}>
+            <CssBaseline />
+            <Component {...pageProps} />
+          </ThemeProvider>
       </ThirdwebProvider>
     </CacheProvider>
   );
