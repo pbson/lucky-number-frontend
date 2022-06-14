@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS = "0x59F3CbFbb725ee4427626A23777b20F7cc5Ca062";
+export const CONTRACT_ADDRESS = "0xEb64cDba235430C10308D3b4dDEd41ae0A40d259";
 
 export const ABI = [
   {
@@ -43,6 +43,10 @@ export const ABI = [
     ],
     name: "transfer",
     type: "event",
+  },
+  {
+    stateMutability: "payable",
+    type: "fallback",
   },
   {
     inputs: [
@@ -244,5 +248,9 @@ export const ABI = [
     ],
     stateMutability: "view",
     type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
   },
 ];

@@ -227,6 +227,7 @@ const WheelComponent = ({
                 width="600"
                 height="600"
                 style={{
+                    cursor: 'pointer',
                     pointerEvents: isFinished && isOnlyOnce ? "none" : "auto"
                 }}
             />

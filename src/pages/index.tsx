@@ -48,32 +48,39 @@ const Home: NextPage = () => {
   const userAddress = useAddress();
   const router = useRouter();
   const [joinRoomLoading, setJoinRoomLoading] = useState(false);
+  const [ticketPrice, setTicketPrice] = useState(0);
 
   useEffect(() => {
-    const ethereum = window.ethereum;
-    let w3 = new Web3(ethereum);
-    setWeb3(w3);
-    let contract = new w3.eth.Contract(ABI, CONTRACT_ADDRESS)
-    setContract(contract)
+    async function fetchData() {
+      const ethereum = window.ethereum;
+      let w3 = new Web3(ethereum);
+      setWeb3(w3);
+      let contract = new w3.eth.Contract(ABI, CONTRACT_ADDRESS);
+      setContract(contract);
+      const ticket = await contract.methods.viewTicketPrice().call();
+      setTicketPrice(ticket);
+      console.log(ticketPrice);
+    }
+    fetchData();
   }, [])
 
   async function joinGame() {
-    console.log(contract);
     setJoinRoomLoading(true);
-    const roomId = await contract.methods.getLastRoomOfPlayer().call({from: userAddress});
+    const roomId = await contract.methods.getLastRoomOfPlayer().call({ from: userAddress });
     console.log(roomId);
     if (roomId != 0) {
       router.push(`/pot/${roomId}`);
     } else {
       await contract.methods
         .joinGame()
-        .send({ from: userAddress })
+        .send({ from: userAddress, value: ticketPrice, gas: "500000" })
         .on('transactionHash', (txID) => {
           web3.eth.getTransactionReceipt(txID, function (e, data) {
             console.log(e, data)
           });
         })
         .on('receipt', async (receipt) => {
+          console.log(receipt);
           if (receipt.status) {
             const roomId = await contract.methods
               .roomId()

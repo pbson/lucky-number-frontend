@@ -18,6 +18,7 @@ import {
     useAddress,
 } from "@thirdweb-dev/react";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import TimerIcon from '@mui/icons-material/Timer';
 
 const Pot: NextPage = () => {
     const [contract, setContract] = useState<any>();
@@ -34,6 +35,7 @@ const Pot: NextPage = () => {
     const [isClaimed, setIsClaimed] = useState(null);
     const [roomId, setRoomId] = useState(null);
     const [claimRewardLoading, setClaimRewardLoading] = useState(false);
+    const [isClaimRewardTimeout, setIsClaimRewardTimeout] = useState(false);
 
     const segColors = [
         '#EE4040',
@@ -57,18 +59,21 @@ const Pot: NextPage = () => {
                 .viewRoom(id)
                 .call()
             setSegments(result.addressPlayers);
-            console.log(result);
             if (result.winner != '0x0000000000000000000000000000000000000000') {
                 setWinner(result.winner);
                 result.winner == userAddress ? setIsWinner(true) : setIsWinner(false)
                 setIsClaimed(result.isClaimed);
+                if (Date.now() > result.endTimeReward * 1000) {
+                    console.log(Date.now() > result.endTimeReward * 1000)
+                    setIsClaimRewardTimeout(true);
+                }
             }
         }
         if (!router.isReady) return;
         fetchData();
     }, [router.isReady, userAddress]);
 
-    const onFinished = (winner) => {
+    function onFinished(winner) {
         handleOpen();
         if (winner == userAddress) {
             setConfetti(true);
@@ -136,8 +141,8 @@ const Pot: NextPage = () => {
                             buttonText='Result'
                             isOnlyOnce={false}
                             size={290}
-                            upDuration={100}
-                            downDuration={1000}
+                            upDuration={1000}
+                            downDuration={10000}
                             fontFamily='Space Grotesk'
                             isWinner={winner}
                             setOpen={setOpen}
@@ -159,22 +164,27 @@ const Pot: NextPage = () => {
                                 <Typography id="modal-modal-title" variant="h3" component="h1" sx={{ mt: 4, fontWeight: 600 }}>
                                     Congratulation
                                 </Typography>
-                                {isClaimed ? 
-                                <Typography id="modal-modal-description" variant="h6" sx={{ mt: 2, mb: 4 }}>
-                                    Congratulation on winning the pot. Click the button below to claim your reward.
-                                </Typography> 
-                                : <Typography id="modal-modal-description" variant="h6" sx={{ mt: 2, mb: 4 }}>
-                                    Congratulation on winning the pot. You have successfully claimed your reward.
-                                </Typography>
-                                }
-
                                 {isClaimed ?
-                                    <PrimaryButton
-                                        onClick={claimReward}
-                                        loading={claimRewardLoading}
-                                    >
-                                        Claim !
-                                    </PrimaryButton>
+                                    isClaimRewardTimeout
+                                        ? <Typography id="modal-modal-description" variant="h6" sx={{ mt: 2, mb: 4 }}>
+                                            Unfortunately, time to claim reward has run out. Join the next pot to test your luck again.
+                                        </Typography>
+                                        : <Typography id="modal-modal-description" variant="h6" sx={{ mt: 2, mb: 4 }}>
+                                            Congratulation on winning the pot. Click the button below to claim your reward.
+                                        </Typography>
+                                    : <Typography id="modal-modal-description" variant="h6" sx={{ mt: 2, mb: 4 }}>
+                                        Congratulation on winning the pot. You have successfully claimed your reward.
+                                    </Typography>
+                                }
+                                {isClaimed ?
+                                    isClaimRewardTimeout
+                                        ? ''
+                                        : <PrimaryButton
+                                            onClick={claimReward}
+                                            loading={claimRewardLoading}
+                                        >
+                                            Claim !
+                                        </PrimaryButton>
                                     :
                                     <CheckCircleIcon color='success' fontSize="large" />
                                 }
