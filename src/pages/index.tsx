@@ -15,6 +15,7 @@ import {
 } from "@thirdweb-dev/react";
 import { useRouter } from 'next/router';
 import { NextPage } from 'next';
+import { AbiItem } from 'web3-utils';
 
 const HomepageTitle = styled(Typography)`
     font-family: "Space Grotesk"
@@ -52,14 +53,13 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const ethereum = window.ethereum;
+      const ethereum = (window as any).ethereum;
       let w3 = new Web3(ethereum);
       setWeb3(w3);
-      let contract = new w3.eth.Contract(ABI, CONTRACT_ADDRESS);
+      let contract = new w3.eth.Contract(ABI as AbiItem[], CONTRACT_ADDRESS);
       setContract(contract);
       const ticket = await contract.methods.viewTicketPrice().call();
       setTicketPrice(ticket);
-      console.log(ticketPrice);
     }
     fetchData();
   }, [])

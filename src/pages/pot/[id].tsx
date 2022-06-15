@@ -7,7 +7,6 @@ import Layout from "../../components/Layout";
 import WheelComponent from '../../components/Wheel';
 import { PrimaryButton } from '../../components/PrimaryButton/PrimaryButton.styled';
 import { useWindowSize } from '../../hooks/useWindowSize';
-import { ModalContainer } from './pot.styled';
 import Image from 'next/image';
 import Web3 from "web3";
 import {
@@ -18,7 +17,24 @@ import {
     useAddress,
 } from "@thirdweb-dev/react";
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import TimerIcon from '@mui/icons-material/Timer';
+import { AbiItem } from 'web3-utils'
+import styled from '@emotion/styled'
+
+const ModalContainer = styled(Box)`
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400;
+    background-color: ${({ theme }) => theme.palette.grey[50]};
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 16px;
+    min-width: 300px;
+`;
 
 const Pot: NextPage = () => {
     const [contract, setContract] = useState<any>();
@@ -51,9 +67,9 @@ const Pot: NextPage = () => {
         async function fetchData() {
             const { id } = router.query
             setRoomId(id);
-            const ethereum = window.ethereum;
+            const ethereum: any = window.ethereum;
             let w3 = new Web3(ethereum);
-            let contract = new w3.eth.Contract(ABI, CONTRACT_ADDRESS)
+            let contract = new w3.eth.Contract(ABI as AbiItem[], CONTRACT_ADDRESS)
             setContract(contract)
             const result = await contract.methods
                 .viewRoom(id)
@@ -71,7 +87,7 @@ const Pot: NextPage = () => {
         }
         if (!router.isReady) return;
         fetchData();
-    }, [router.isReady, userAddress]);
+    }, [router.isReady, router.query, userAddress]);
 
     function onFinished(winner) {
         handleOpen();
@@ -157,6 +173,7 @@ const Pot: NextPage = () => {
                         {isWinner && userAddress ?
                             <ModalContainer>
                                 <Image
+                                    alt="Confetti Icon"
                                     src="/images/confetti.png"
                                     width={150}
                                     height={150}
@@ -192,6 +209,7 @@ const Pot: NextPage = () => {
                             :
                             <ModalContainer>
                                 <Image
+                                    alt="Sad face gif"
                                     src="/images/sad-face.gif"
                                     width={100}
                                     height={100}
