@@ -36,8 +36,8 @@ const Footer = () => {
                         lineHeight: '24px',
                         color: 'hsla(0,0%,100%,.65)'
                     }}>
-                        Savvycom is a leading Software Development, Technology Consulting and Software Outsourcing Services Company.
-                        We're specialized in End-to-End Software Development, Technology Consulting Services and Cloud Devops.
+                        Savvycom is a leading Software Development, Technology Consulting and Software Outsourcing Services Company. 
+                        We&apos;re specialized in End-to-End Software Development, Technology Consulting Services and Cloud Devops.
                     </Typography>
                 </FooterDiv>
             </FooterContainer>

@@ -33,39 +33,37 @@ export const ConnectWallet = () => {
     // If a wallet is connected, show address, chainId and disconnect button
     if (address) {
         return (
-            address && (
-                <div>
-                    <IconButton
-                        size="large"
-                        aria-label="account of current user"
-                        aria-controls="menu-appbar"
-                        aria-haspopup="true"
-                        onClick={handleMenu}
-                        color="inherit"
-                    >
-                        <AccountCircle />
-                    </IconButton>
-                    <Menu
-                        id="menu-appbar"
-                        anchorEl={anchorEl}
-                        anchorOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        keepMounted
-                        transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'right',
-                        }}
-                        open={Boolean(anchorEl)}
-                        onClose={handleClose}
-                    >
-                        <MenuItem onClick={handleClose}>Address: {address}</MenuItem>
-                        <MenuItem onClick={handleClose}>Chain ID: {network[0].data.chain && network[0].data.chain.id}</MenuItem>
-                        <MenuItem onClick={handleClose}><PrimaryButton onClick={disconnectWallet}>Disconnect</PrimaryButton></MenuItem>
-                    </Menu>
-                </div>
-            )
+            <div>
+                <IconButton
+                    size="large"
+                    aria-label="account of current user"
+                    aria-controls="menu-appbar"
+                    aria-haspopup="true"
+                    onClick={handleMenu}
+                    color="inherit"
+                >
+                    <AccountCircle />
+                </IconButton>
+                <Menu
+                    id="menu-appbar"
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    keepMounted
+                    transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'right',
+                    }}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                >
+                    <MenuItem onClick={handleClose}>Address: {address}</MenuItem>
+                    <MenuItem onClick={handleClose}>Chain ID: {network[0].data.chain && network[0].data.chain.id}</MenuItem>
+                    <MenuItem onClick={handleClose}><PrimaryButton onClick={disconnectWallet}>Disconnect</PrimaryButton></MenuItem>
+                </Menu>
+            </div>
         );
     }
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useState } from "react";
 
 const WheelComponent = ({
@@ -17,7 +18,7 @@ const WheelComponent = ({
     height = 100,
     isWinner,
     setOpen
-}) => {
+}: any) => {
     let currentSegment = "";
     let isStarted = false;
     const [isFinished, setFinished] = useState(false);
@@ -38,7 +39,9 @@ const WheelComponent = ({
         setTimeout(() => {
             window.scrollTo(0, 1);
         }, 0);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
     const wheelInit = () => {
         initCanvas();
         wheelDraw();
@@ -74,7 +77,7 @@ const WheelComponent = ({
             canvas.dispatchEvent(event);
             canvas.addEventListener("click", setOpen, false);
         }
-    }, [isWinner]);
+    }, [isWinner, setOpen]);
     const onTimerTick = () => {
         frames++;
         draw();
